@@ -68,7 +68,7 @@ for seed in seeds:
 
     # BEGIN CALCULATIONS
     explorer.get_minima(coords=coords,
-                        n_steps=20, # 50 USUALLY, BUT KEEPING IT LOW FOR EXAMPLE'S SAKE
+                        n_steps=5, # 50 USUALLY, BUT KEEPING IT LOW FOR EXAMPLE'S SAKE
                         conv_crit=1e-3,
                         temperature=100.0,
                         test_valid=True)

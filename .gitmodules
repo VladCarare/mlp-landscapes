@@ -1,0 +1,8 @@
+[submodule "external/topsearch-mlp_run"]
+	path = external/topsearch-mlp_run
+	url = https://github.com/VladCarare/topography-searcher.git
+	branch = mlp_run
+[submodule "external/topsearch-analysis"]
+	path = external/topsearch-analysis
+	url = https://github.com/VladCarare/topography-searcher.git
+	branch = analysis

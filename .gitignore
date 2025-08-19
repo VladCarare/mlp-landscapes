@@ -67,3 +67,8 @@ env/
 ENV/
 env.bak/
 venv.bak/
+
+# Project results ignore
+examples/salicylic_acid_ani2x/landscape_runs
+examples/salicylic_acid_ani2x/logfile
+.github/*

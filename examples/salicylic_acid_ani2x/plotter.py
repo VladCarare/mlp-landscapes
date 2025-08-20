@@ -183,7 +183,7 @@ def plot_stacked_bars(ax, data_type, title, dft_reference, ylabel):
     #           fancybox=True, shadow=False, ncol=1)
     # Legend only on bottom
     ax.legend(loc='upper right', fontsize=labelfontsize-1.5, framealpha=0.6, 
-                    fancybox=True, shadow=False, ncol=1, bbox_to_anchor=(0.99,1.12))
+                    fancybox=True, shadow=False, ncol=1, bbox_to_anchor=(0.99,0.99))
     
     # Grid styling
     # ax.grid(True, alpha=0.3, linestyle='-', linewidth=0.5)
@@ -416,10 +416,10 @@ def plot_fig4_perfect_match_comparison_1(fig,n_unphysical_critical_points_plot_g
         ax.tick_params(labelsize=labelfontsize-1.5,rotation=30)
         ax.yaxis.set_major_locator(plt.MaxNLocator(4))
         
-        if data_type=='TS':
-            ax.set_ylim(0, 70)
-        else:
-            ax.set_ylim(0,33)
+        # if data_type=='TS':
+        #     ax.set_ylim(0, 70)
+        # else:
+        #     ax.set_ylim(0,33)
 
     # Create both subplots
     plot_stacked_bars(ax1, 'mins.', 'Energy Minima Analysis', 28, 'Count [$\longleftarrow$]')
@@ -825,8 +825,8 @@ def plot_fig4_perfect_match_comparison_2(fig,n_unphysical_critical_points_plot_g
     plot_regular_bars(ax2, 'TS', 'Count [$\longrightarrow$]')
     
     # Format the broken axis
-    ax1_top.set_ylim(61, 75)
-    ax1_bottom.set_ylim(0, 23)
+    # ax1_top.set_ylim(61, 75)
+    # ax1_bottom.set_ylim(0, 23)
     
     # Remove spines between the two subplots
     ax1_top.spines['bottom'].set_visible(False)
@@ -853,7 +853,7 @@ def plot_fig4_perfect_match_comparison_2(fig,n_unphysical_critical_points_plot_g
     ax1_top.set_yticks([70])
     
     # Format the regular axis
-    ax2.set_ylim(0, 72)
+    # ax2.set_ylim(0, 72)
     ax2.set_ylabel('Count [$\longleftarrow$]', fontsize=labelfontsize)
     ax2.set_xticks(np.arange(len(model_order)))
     ax2.set_xticklabels(display_labels, fontsize=labelfontsize-1.5, rotation=0)
@@ -1312,4 +1312,4 @@ ax5.text(0.02,1.19,next(fig_indexing),weight='bold',transform=ax5.transAxes,font
 ax5.text(0.35,1.19,'N-L KTN',weight='bold',transform=ax5.transAxes,fontsize=labelfontsize+1)
 
 
-plt.savefig('/Users/vcarare/dev/mlp-landscapes/examples/salicylic_acid_ani2x/landscape_runs/ktn_comparison.pdf', bbox_inches='tight')
+plt.savefig('examples/salicylic_acid_ani2x/landscape_runs/ktn_comparison.pdf', bbox_inches='tight')

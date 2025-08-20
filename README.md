@@ -14,7 +14,7 @@ Note: Do not run further installation commands at this step.
 
 # Running the example
 
-To set up the environment and run the example, run `source reproduce_script_ani2x_mlp.sh` in the top level directory of this package.
+To set up the environment and run the example, run `source RUNME.sh` in the top level directory of this package.
 
 All results and plots will be saved in `examples/salicylic_acid_ani2x/landscape_runs`. 
 

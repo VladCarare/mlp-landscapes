@@ -15,9 +15,9 @@ This repository provides tools to analyze machine learning potentials through en
 
 ## Requirements
 
-- Python 3.11
-- Conda package manager (can be)
-- CPU
+- Python 3.11 (other version have not been tested)
+- Conda package manager (this can be modified in RUNME.sh)
+- 1 CPU (CPU works well for Aimnet2, ANI2x and GFN2-xTB. Other models may require a GPU)
 
 ## Installation
 

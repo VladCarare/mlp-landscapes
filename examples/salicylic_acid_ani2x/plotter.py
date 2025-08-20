@@ -60,7 +60,7 @@ import pandas as pd
 import matplotlib.patches as mpatches
 
 
-fig, axs = plt.subplots(1,2,figsize=(6,4),sharex=True)
+fig, axs = plt.subplots(1,2,figsize=(6,4),sharex=True,gridspec_kw={'wspace':0.3})
 ax1,ax2 = axs[0],axs[1]
 # Set academic style - clean and scientific
 plt.rcParams.update({
@@ -1308,8 +1308,5 @@ ktn_comparison_plot_gridspec_right_legend = GridSpec(1, 1, left=left + width +le
 ktn_comparison_plot_gridspec = GridSpec(1, 1, left=left, right=left+width, bottom=bottom, top=bottom+height,figure=fig,hspace = 0.,wspace = 0.05)
 ax5 = plot_fig4_ktn_comparison(fig,ktn_comparison_plot_gridspec,ktn_comparison_plot_gridspec_left_legend,ktn_comparison_plot_gridspec_right_legend,labelfontsize)
 ax5=ax5[0]
-ax5.text(0.02,1.19,next(fig_indexing),weight='bold',transform=ax5.transAxes,fontsize=labelfontsize+6)
-ax5.text(0.35,1.19,'N-L KTN',weight='bold',transform=ax5.transAxes,fontsize=labelfontsize+1)
-
 
 plt.savefig('examples/salicylic_acid_ani2x/landscape_runs/ktn_comparison.pdf', bbox_inches='tight')

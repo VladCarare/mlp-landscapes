@@ -63,7 +63,7 @@ To reproduce full paper results, modify these parameters in:
 examples/salicylic_acid_ani2x/run_landscape_runs.py
 ```
 
-To add models which are not present in the list above, one needs to add support for them in `src/topsearch/potentials/ml_potentials.py`. This works best if the models already have an ASE interface.
+To add models which are not present in the list above, one needs to add support for them in `external/topsearch-mlp_run/src/topsearch/potentials/ml_potentials.py`. This works best if the models already have an ASE interface.
 
 ## Notes
 

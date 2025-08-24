@@ -1,0 +1,1 @@
+To use these scripts, run them in the folder where min.coords/min.data or ts.coords/ts.data are, specifying the template .xyz file to be used (see examples/template_molecules): this is for the program to identify the atom types. One must make sure the order of coordinates specified in .coords file is identical to the order of atoms in the template .xyz file. 

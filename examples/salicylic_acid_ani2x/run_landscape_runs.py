@@ -35,6 +35,9 @@ for seed in seeds:
 
     
     ff = MMFF94(fffile)
+
+    # USING ANI2x FOR THIS EXAMPLE. Other supported models are :aimnet2, dftb, mace, allegro, nequip, mace-mp-0b3
+    # Please see the mlp_run branch of topsearch, src/potentials/ml_potentials.py for details on how to specify the potentials
     mlp = MachineLearningPotential(species, 'torchani', 'default', "cpu",ff=ff)
 
     comparer = MolecularSimilarity(distance_criterion=1.0,

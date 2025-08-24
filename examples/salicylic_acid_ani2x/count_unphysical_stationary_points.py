@@ -139,34 +139,35 @@ def canonicalize_atoms2(filename):
     return atoms
 
 
-all_results = []
+if __name__=='__main__':
+    all_results = []
 
-ml_landscape_path = f"examples/salicylic_acid_ani2x/landscape_runs/"
+    ml_landscape_path = f"examples/salicylic_acid_ani2x/landscape_runs/"
 
-ml_ktn = KineticTransitionNetwork()
-ml_ktn.read_network(ml_landscape_path)
-
-
-reference_atoms = canonicalize_atoms2(f'examples/salicylic_acid_ani2x/data/salicylic_acid_ground_state.xyz')
-initial_n_min = ml_ktn.n_minima
-initial_n_ts = ml_ktn.n_ts
-
-remove_different_bonding_frameworks(ml_ktn, reference_atoms)
-
-remove_structures_with_multiply_bonded_hydrogen(ml_ktn, reference_atoms)
-
-n_physical_min = ml_ktn.n_minima
-n_physical_ts = ml_ktn.n_ts
-entry={'Molecule':'salicylic','Model':'ani2x','Type':'non_altitude',
-       'initial_n_min':initial_n_min,'n_physical_min':n_physical_min,
-        'initial_n_ts':initial_n_ts,'n_physical_ts':n_physical_ts}
-print(initial_n_min,initial_n_ts,'->',n_physical_min,n_physical_ts)
-all_results.append(entry)
+    ml_ktn = KineticTransitionNetwork()
+    ml_ktn.read_network(ml_landscape_path)
 
 
-import pickle 
-print("Saving results...")
-with open(f"examples/salicylic_acid_ani2x/landscape_runs/count_unphysical_stationary_points.pkl", 'wb') as f:
-    pickle.dump(all_results
-    , f)
-print("Analysis complete!")
+    reference_atoms = canonicalize_atoms2(f'examples/salicylic_acid_ani2x/data/salicylic_acid_ground_state.xyz')
+    initial_n_min = ml_ktn.n_minima
+    initial_n_ts = ml_ktn.n_ts
+
+    remove_different_bonding_frameworks(ml_ktn, reference_atoms)
+
+    remove_structures_with_multiply_bonded_hydrogen(ml_ktn, reference_atoms)
+
+    n_physical_min = ml_ktn.n_minima
+    n_physical_ts = ml_ktn.n_ts
+    entry={'Molecule':'salicylic','Model':'ani2x','Type':'non_altitude',
+        'initial_n_min':initial_n_min,'n_physical_min':n_physical_min,
+            'initial_n_ts':initial_n_ts,'n_physical_ts':n_physical_ts}
+    print(initial_n_min,initial_n_ts,'->',n_physical_min,n_physical_ts)
+    all_results.append(entry)
+
+
+    import pickle 
+    print("Saving results...")
+    with open(f"examples/salicylic_acid_ani2x/landscape_runs/count_unphysical_stationary_points.pkl", 'wb') as f:
+        pickle.dump(all_results
+        , f)
+    print("Analysis complete!")

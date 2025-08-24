@@ -6,5 +6,6 @@ Use the scripts in `scripts` directory to convert minima and transition state fi
 
 ### Example usage:
 
-> From inside a folder containing ts.data, ts.coords and convert_ts_coords_to_atoms.py
-python convert_ts_coords_to_atoms.py salicylic.xyz
+From inside a folder containing ts.data, ts.coords and convert_ts_coords_to_atoms.py
+
+`python convert_ts_coords_to_atoms.py salicylic.xyz`

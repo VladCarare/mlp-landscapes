@@ -4,7 +4,7 @@
 # Global properties of the energy landscape: a testing and training arena for machine learned potentials
 
 [![Paper](https://img.shields.io/badge/Paper-PDF-red)](https://arxiv.org/)
-
+[![Dataset](https://img.shields.io/badge/Dataset-Landscape17-blue)](https://doi.org/10.6084/m9.figshare.29949230)
 </div>
 
 ## Abstract

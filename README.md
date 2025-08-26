@@ -87,6 +87,7 @@ To add models which are not present in the list above, one needs to add support 
 
 If you use this workflow in your research, please cite:
 ```
-[Citation information to be added]
+Cărare, V., Thiemann, F.L., Morrow, J., Wales, D.J., Pyzer-Knapp, E.O., Dicks, L. (2025). Global properties of the energy landscape: a testing and training arena
+  for machine learned potentials. arXiv preprint arXiv:2508.16425.
 ```
 

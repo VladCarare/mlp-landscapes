@@ -2,7 +2,14 @@ import pickle
 import os, os.path 
 from ase.io import read 
 import numpy as np 
+import matplotlib.pyplot as plt
 
+# To construct rate matrix
+from scipy.sparse import issparse, diags
+
+import PyGT
+from ase.io import read 
+import os, os.path 
 
 
 def get_rate_properties(ktn, atoms, folder: str) -> None:
@@ -28,15 +35,91 @@ def get_rate_properties(ktn, atoms, folder: str) -> None:
     np.savetxt(f'{folder}/ts.data', out_ts.transpose())
 
 
-import numpy as np
-import matplotlib.pyplot as plt
+molecule = 'salicylic'
+models = ['ani2x']
+titles = ['ANI2x']
+calc_types = ['retrain']
 
-# To construct rate matrix
-from scipy.sparse import issparse, diags
+atoms = read('examples/salicylic_acid_ani2x/data/salicylic_acid_ground_state_canon_perm.xyz')
+for calc_type in calc_types:
+    for idx,model in enumerate(models):
+        if calc_type=='altitude' and model in ['ani2x','aimnet2','dftb','mace-mp-0b3','so3lr']:
+            continue
+        
+        ml_landscape_path = f"examples/salicylic_acid_ani2x/landscape_runs"
 
-import PyGT
-from ase.io import read 
-import os, os.path 
+        with open(f"examples/salicylic_acid_ani2x/landscape_runs/analysis_closest-matches.pkl", 'rb') as f:
+            dft_ktn, ml_ktn, minima_correspondences, missing_ml_minima, _ = pickle.load(f)
+            
+        print(minima_correspondences)
+        pathways_to_test = [(3,4)]
+
+        for pathway_to_test in pathways_to_test:
+            i, f = pathway_to_test
+            folder_to_make = ml_landscape_path + f'/pygt{i}-{f}'
+            matched_dft_mins = [t[0] for t in minima_correspondences]
+            if i not in matched_dft_mins or f not in matched_dft_mins:
+                continue
+            minima_correspondences_dict = {t[0]:t[1] for t in minima_correspondences}
+            corresponding_ml_mins = [minima_correspondences_dict[dft_min] for dft_min in [i,f]]
+            corresponding_ml_mins=[corresponding_ml_mins[0]+1,corresponding_ml_mins[1]+1]
+
+            print(corresponding_ml_mins)
+            
+            if not os.path.exists(folder_to_make):
+                os.makedirs(folder_to_make)
+            get_rate_properties(ml_ktn,atoms,folder_to_make)
+            with open(folder_to_make+'/min.A','w') as fl:
+                fl.write(f'1\n{corresponding_ml_mins[1]}')
+            with open(folder_to_make+'/min.B','w') as fl:
+                fl.write(f'1\n{corresponding_ml_mins[0]}')
+
+
+
+
+atoms = read('examples/salicylic_acid_ani2x/data/salicylic_acid_ground_state_canon_perm.xyz')
+for calc_type in calc_types:
+    for idx,model in enumerate(models):
+        if calc_type=='altitude' and model in ['ani2x','aimnet2','dftb','mace-mp-0b3','so3lr']:
+            continue
+
+        ml_landscape_path = f"examples/salicylic_acid_ani2x/landscape_runs"
+
+        with open(f"examples/salicylic_acid_ani2x/landscape_runs/analysis_closest-matches.pkl", 'rb') as f:
+            dft_ktn, ml_ktn, minima_correspondences, missing_ml_minima, _ = pickle.load(f)
+        
+        print(calc_type, model)
+        print(minima_correspondences)
+        # pathways_to_test = [(5,4),(3,4),(6,4)]
+        pathways_to_test = [(3,5,4)]#,(6,4)]
+
+        for pathway_to_test in pathways_to_test:
+            i, m, f = pathway_to_test
+            folder_to_make = ml_landscape_path + f'/pygt{i}-{f}-only'
+            matched_dft_mins = [t[0] for t in minima_correspondences]
+            if i not in matched_dft_mins or m not in matched_dft_mins or f not in matched_dft_mins:
+                continue
+            minima_correspondences_dict = {t[0]:t[1] for t in minima_correspondences}
+            corresponding_ml_mins = [minima_correspondences_dict[dft_min] for dft_min in [i,m,f]]
+            if ml_ktn.G.has_edge(minima_correspondences_dict[i],minima_correspondences_dict[f]):
+                ml_ktn.remove_ts(minima_correspondences_dict[i],minima_correspondences_dict[f])
+                print(f'Removed TS {minima_correspondences_dict[i],minima_correspondences_dict[f]}')
+            print(corresponding_ml_mins, [i,m,f])
+            ml_ktn.remove_minima([minimum for minimum in range(ml_ktn.n_minima) if minimum not in corresponding_ml_mins])
+            # permutation = np.argsort(corresponding_ml_mins)
+            permutation = [sorted(corresponding_ml_mins).index(i) for i in corresponding_ml_mins] # not equal to argsort
+            print(permutation)
+            corresponding_ml_mins=[permutation[0]+1,permutation[-1]+1]
+            print(f'Final endpoints: ', corresponding_ml_mins)
+            if not os.path.exists(folder_to_make):
+                os.makedirs(folder_to_make)
+            get_rate_properties(ml_ktn,atoms,folder_to_make)
+            with open(folder_to_make+'/min.A','w') as fl:
+                fl.write(f'1\n{corresponding_ml_mins[1]}')
+            with open(folder_to_make+'/min.B','w') as fl:
+                fl.write(f'1\n{corresponding_ml_mins[0]}')
+
+
 
 
 def plot_fig4_rate_comparison(fig,rate_plot_gridspec,labelfontsize):

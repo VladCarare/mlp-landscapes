@@ -3,7 +3,7 @@
   
 # Global properties of the energy landscape: a testing and training arena for machine learned potentials
 
-[![Paper](https://img.shields.io/badge/Paper-PDF-red)](https://arxiv.org/abs/2508.16425)
+[![Paper](https://img.shields.io/badge/Paper-PDF-red)](https://doi.org/10.1038/s41524-025-01878-x)
 [![Dataset](https://img.shields.io/badge/Dataset-Landscape17-blue)](https://doi.org/10.6084/m9.figshare.29949230)
 </div>
 
@@ -70,7 +70,11 @@ The example is configured for quick demonstration:
 - **Basin hopping steps:** 5 per seed (vs. 50 in the paper)
 - **Model:** ANI2x (vs. GFN2-xTB, Aimnet2, MACE, NequIP, Allegro, SO3LR, MACE-MP-0b3 in the paper)
 
-To reproduce full paper results, modify these parameters in:
+The MLP landscapes which were generated and analyzed in the corresponding publication are present in 
+```
+examples/production_landscapes/
+```
+To reproduce these results, modify the parameters (and run for every model and every molecule) in:
 ```
 examples/salicylic_acid_ani2x/run_landscape_runs.py
 ```
@@ -87,7 +91,6 @@ To add models which are not present in the list above, one needs to add support 
 
 If you use this workflow in your research, please cite:
 ```
-Cărare, V., Thiemann, F.L., Morrow, J., Wales, D.J., Pyzer-Knapp, E.O., Dicks, L. (2025). Global properties of the energy landscape: a testing and training arena
-  for machine learned potentials. arXiv preprint arXiv:2508.16425.
+Cărare, V., Thiemann, F.L., Morrow, J.D., Wales, D.J., Pyzer-Knapp, E.O., Dicks, L. Global properties of the energy landscape: a testing and training arena for machine learned potentials. npj Comput Mater (2025). https://doi.org/10.1038/s41524-025-01878-x
 ```
 

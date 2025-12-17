@@ -63,21 +63,16 @@ All results and visualizations will be saved in:
 examples/salicylic_acid_ani2x/landscape_runs/
 ```
 
-## Configuration
+## Configuration and Reproducibility
 
 The example is configured for quick demonstration:
 - **Initial seeds:** 3 (vs. 20 in the paper)
 - **Basin hopping steps:** 5 per seed (vs. 50 in the paper)
 - **Model:** ANI2x (vs. GFN2-xTB, Aimnet2, MACE, NequIP, Allegro, SO3LR, MACE-MP-0b3 in the paper)
 
-The MLP landscapes which were generated and analyzed in the corresponding publication are present in 
-```
-examples/production_landscapes/
-```
-To reproduce these results, modify the parameters (and run for every model and every molecule) in:
-```
-examples/salicylic_acid_ani2x/run_landscape_runs.py
-```
+The MLP landscapes which were generated and analyzed in the corresponding publication are available in `examples/production_landscapes/`.
+
+To reproduce these results, modify the parameters inside `examples/salicylic_acid_ani2x/run_landscape_runs.py` and run for every model and every molecule.
 
 To add models which are not present in the list above, one needs to add support for them in `external/topsearch-mlp_run/src/topsearch/potentials/ml_potentials.py`. This works best if the models already have an ASE interface.
 
@@ -93,4 +88,4 @@ If you use this workflow in your research, please cite:
 ```
 Cărare, V., Thiemann, F.L., Morrow, J.D., Wales, D.J., Pyzer-Knapp, E.O., Dicks, L. Global properties of the energy landscape: a testing and training arena for machine learned potentials. npj Comput Mater (2025). https://doi.org/10.1038/s41524-025-01878-x
 ```
-
+ 

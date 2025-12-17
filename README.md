@@ -85,7 +85,5 @@ To add models which are not present in the list above, one needs to add support 
 ## Citation
 
 If you use this workflow in your research, please cite:
-```
-Cărare, V., Thiemann, F.L., Morrow, J.D., Wales, D.J., Pyzer-Knapp, E.O., Dicks, L. Global properties of the energy landscape: a testing and training arena for machine learned potentials. npj Comput Mater (2025). https://doi.org/10.1038/s41524-025-01878-x
-```
+> Cărare, V., Thiemann, F.L., Morrow, J.D., Wales, D.J., Pyzer-Knapp, E.O., Dicks, L. Global properties of the energy landscape: a testing and training arena for machine learned potentials. npj Comput Mater (2025). https://doi.org/10.1038/s41524-025-01878-x
  

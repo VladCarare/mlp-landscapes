@@ -189,8 +189,12 @@ class KTNComparison:
             # Find closest transition state in ML network
             best_distance = float('inf')
             best_edge_idx = 0
-            
-            for ml_edge_idx in range(self.ml_ktn.G.number_of_edges(ml_min1, ml_min2)):
+
+            for ml_edge in self.ml_ktn.G.edges:
+                # pick edges between ml_min1 and ml_min2
+                if not ((ml_edge[0]==ml_min1 and ml_edge[1]==ml_min2) or (ml_edge[0]==ml_min2 and ml_edge[1]==ml_min1)):
+                    continue
+                ml_edge_idx = ml_edge[2]
                 distance = self.comparer.closest_distance(
                     ts_coords,
                     self.ml_ktn.get_ts_coords(ml_min1, ml_min2, ml_edge_idx)
@@ -292,7 +296,8 @@ class KTNComparison:
     def remove_inversions(self, ktn, reference_atoms):
         """
         Remove structures that are related by inversion symmetry.
-        
+        Makes sure to restablish the connectivity of orphaned minima.
+
         Parameters
         ----------
         ktn : KineticTransitionNetwork
@@ -303,6 +308,7 @@ class KTNComparison:
         to_delete_1 = []  # First of the pair (usually kept)
         to_delete_2 = []  # Second of the pair (usually deleted)
 
+        to_delete_final = []
         # Find all inversion-related pairs
         for i in range(ktn.n_minima):
             if i in to_delete_2:
@@ -331,24 +337,89 @@ class KTNComparison:
                 ):
                     to_delete_1.append(i)
                     to_delete_2.append(j)
-        
-        # Decide which minima to delete based on connectivity
-        edges = list(ktn.G.edges())
-        to_delete_final = []
-        
-        for i in range(len(to_delete_1)):
-            # Count edges connected to each minimum
-            nedges_1 = sum(1 for edge in edges if to_delete_1[i] in edge)
-            nedges_2 = sum(1 for edge in edges if to_delete_2[i] in edge)
-            
-            # Keep the one with more connections
-            if nedges_2 > nedges_1:
-                to_delete_final.append(to_delete_1[i])
-                print(f'Removing minimum {to_delete_1[i]} (fewer connections)')
-            else:
-                to_delete_final.append(to_delete_2[i])
-                print(f'Removing minimum {to_delete_2[i]} (fewer connections)')
-        
+                            
+                    edges = list(ktn.G.edges)
+                    
+                    # Count edges connected to each minimum
+                    nedges_1 = sum(1 for edge in edges if i in edge[:2])
+                    nedges_2 = sum(1 for edge in edges if j in edge[:2])
+                    
+                    edges_1 = [edge[:2] for edge in edges if i in edge[:2]]
+                    edges_2 = [edge[:2] for edge in edges if j in edge[:2]]
+                    
+                    # Keep the one with more connections
+                    if nedges_2 > nedges_1:
+                        node_to_delete = i
+                        node_to_keep = j
+                        edges_connected_to_delete_node = edges_1
+                        edges_connected_to_keep_node = edges_2
+                    else:
+                        node_to_delete = j
+                        node_to_keep = i
+                        edges_connected_to_delete_node = edges_2
+                        edges_connected_to_keep_node = edges_1
+
+                    print(f'Will remove connections to node {node_to_delete}, i.e edges: {edges_connected_to_delete_node}')
+                    to_delete_final.append(node_to_delete)
+
+                    for edge in edges_connected_to_delete_node:
+
+                        # FIRST CHECK SELF TRANSITIONS
+                        if sorted((node_to_keep,node_to_delete)) == edge:
+                            print(f'Self-transition found.')
+                            edge_to_transfer = (node_to_keep,node_to_delete)
+                            where_to_transfer = (node_to_keep,node_to_keep)
+                            ktn.add_ts(ktn.get_ts_coords(*edge_to_transfer),ktn.get_ts_energy(*edge_to_transfer),where_to_transfer[0],where_to_transfer[1])
+                            ktn.remove_ts(*edge_to_transfer)
+                            print(f'Removing edge {edge_to_transfer} and adding to {where_to_transfer[0],where_to_transfer[1]}')
+                            print(f'Remaining edges: {ktn.G.edges}')
+                            continue
+
+
+                        # FIRST CHECK SELF TRANSITIONS
+                        elif edge[0]==edge[1]:
+                            print(f'Self-transition found {edge}.')
+                            edge_to_transfer = edge
+                            where_to_transfer = (node_to_keep,node_to_keep)
+                            ktn.add_ts(ktn.get_ts_coords(*edge_to_transfer),ktn.get_ts_energy(*edge_to_transfer),where_to_transfer[0],where_to_transfer[1])
+                            ktn.remove_ts(*edge_to_transfer)
+                            print(f'Removing edge {edge_to_transfer} and adding to {where_to_transfer[0],where_to_transfer[1]}')
+                            print(f'Remaining edges: {ktn.G.edges}')
+                            continue
+
+                        other_node = [node for node in edge if node!=node_to_delete].pop()
+                        print(edge, other_node,node_to_delete)
+                    
+                        # THEN CHECK TRANSITIONS TO A SHARED 3RD NODE
+                        if sorted((other_node,node_to_keep)) in edges_connected_to_keep_node:
+                            occurences = sum(1 for edge in edges_connected_to_keep_node if edge==sorted((other_node,node_to_keep)))
+
+                            coords1 = MolecularCoordinates(
+                                reference_atoms.get_chemical_symbols(),
+                                ktn.get_ts_coords(*edge)
+                                )   
+                            found = False
+                            for _ in occurences: 
+                                if not self.comparer.test_same(coords1,
+                                                    ktn.get_ts_coords((other_node,node_to_keep,_)),
+                                                    ktn.get_ts_energy(*edge),
+                                                    ktn.get_ts_energy((other_node,node_to_keep,_))):
+                                    ktn.add_ts(ktn.get_ts_coords(*edge),ktn.get_ts_energy(*edge),sorted((other_node,node_to_keep))[0],sorted((other_node,node_to_keep))[1])
+                                    ktn.remove_ts(*edge)
+                                    print(f'Removing edge {edge} and adding to {sorted((other_node,node_to_keep))[0],sorted((other_node,node_to_keep))[1]}')
+                                    print(f'Remaining edges: {ktn.G.edges}')
+                                    found=True
+                                    continue
+                            if found:
+                                continue
+                        
+                        # FINALLY ANY NON-SHARED 3RD NODE SHOULD BE CONNECTED TO THE REMAINING NODE.
+                        else:
+                            ktn.add_ts(ktn.get_ts_coords(*edge),ktn.get_ts_energy(*edge),sorted((other_node,node_to_keep))[0],sorted((other_node,node_to_keep))[1])
+                            ktn.remove_ts(*edge)
+                            print(f'Removing edge {edge} and adding to {sorted((other_node,node_to_keep))[0],sorted((other_node,node_to_keep))[1]}')
+                            print(f'Remaining edges: {ktn.G.edges}')
+
         # Delete from highest to lowest index to avoid shifting issues
         for i in sorted(list(set(to_delete_final)), reverse=True):
             ktn.remove_minimum(i)

@@ -622,7 +622,7 @@ if __name__=='__main__':
     # Load and prepare DFT network
     print("Loading DFT network...")
     dft_ktn = KineticTransitionNetwork()
-    dft_ktn.read_network(dft_landscape_path)
+    dft_ktn.read_network(text_path=dft_landscape_path)
     reference_atoms = canonicalize_atoms(f"examples/salicylic_acid_ani2x/data/dft_ktn/salicylic.xyz", dft_ktn)
     print(f'DFT network: {dft_ktn.n_minima} minima, {dft_ktn.n_ts} transition states')
 
@@ -630,7 +630,7 @@ if __name__=='__main__':
     # Load and prepare ML network
     print("Loading ML network...")
     ml_ktn = KineticTransitionNetwork()
-    ml_ktn.read_network(ml_landscape_path)
+    ml_ktn.read_network(text_path=ml_landscape_path)
     canonicalize_atoms(f'examples/salicylic_acid_ani2x/data/salicylic_acid_ground_state_canon_perm.xyz', ml_ktn)
 
     # Clean ML network

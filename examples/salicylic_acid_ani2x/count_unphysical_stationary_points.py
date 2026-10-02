@@ -145,7 +145,7 @@ if __name__=='__main__':
     ml_landscape_path = f"examples/salicylic_acid_ani2x/landscape_runs/"
 
     ml_ktn = KineticTransitionNetwork()
-    ml_ktn.read_network(ml_landscape_path)
+    ml_ktn.read_network(text_path=ml_landscape_path)
 
 
     reference_atoms = canonicalize_atoms2(f'examples/salicylic_acid_ani2x/data/salicylic_acid_ground_state.xyz')

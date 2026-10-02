@@ -40,11 +40,12 @@ for seed in seeds:
     # Please see external/topsearch/src/topsearch/potentials/ml_potentials.py for details on how to specify the potentials
     mlp = MachineLearningPotential(species, 'torchani', 'default', "cpu",ff=ff)
 
-    # Alignment distances are RMSD. This was 1.0 when the distance was a
-    # root-sum-squared deviation, which for the 16 atoms of salicylic acid
-    # is the same as 1.0/sqrt(16) = 0.25 here. Unlike the old value this one
-    # means the same thing for every molecule size.
-    comparer = MolecularSimilarity(distance_criterion=0.25,
+    # Alignment distances are RMSD, so this is 0.3 Angstrom per atom and
+    # means the same thing whatever the molecule size. It used to be 1.0 as
+    # a root-sum-squared deviation, which for the 16 atoms of salicylic acid
+    # worked out at 0.25 here, and which is why small molecules previously
+    # needed the criterion lowered by hand. Matches combine_results.py.
+    comparer = MolecularSimilarity(distance_criterion=0.3,
                                 energy_criterion=5e-3,
                                 weighted=False)
     ktn = KineticTransitionNetwork()

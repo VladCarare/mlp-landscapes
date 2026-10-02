@@ -2,21 +2,17 @@
 #
 #     source RUNME.sh
 #
-# Both topsearch submodules install as the distribution `topsearch`, so only
-# one of them is importable at a time. This script installs the mlp_run branch
-# to generate the landscapes, then swaps to the analysis branch for the
-# analysis stages, checking after each swap that the intended branch is the
-# one in use. Every stage is checked, so a failure stops the run at the cause
-# rather than cascading into confusing errors further down.
+# topsearch is installed once, from the single submodule in external/.
+# Every stage is checked, so a failure stops the run at the cause rather than
+# cascading into confusing errors further down.
 
 mlp_landscapes_runme() {
 
     local example='examples/salicylic_acid_ani2x'
     local runs="${example}/landscape_runs"
 
-    if [ ! -f external/topsearch-mlp_run/pyproject.toml ] ||
-       [ ! -f external/topsearch-analysis/pyproject.toml ]; then
-        echo 'ERROR: the topsearch submodules are missing. Clone with' >&2
+    if [ ! -f external/topsearch/pyproject.toml ]; then
+        echo 'ERROR: the topsearch submodule is missing. Clone with' >&2
         echo '  git clone --recursive https://github.com/VladCarare/mlp-landscapes.git' >&2
         echo 'or, in an existing clone, run' >&2
         echo '  git submodule update --init --recursive' >&2
@@ -36,9 +32,8 @@ mlp_landscapes_runme() {
     pip install torch==2.4.0 || return 1
     pip install torchani==2.2.4 || return 1
 
-    echo 'Installing topsearch branch that was used to generate the KTNs.'
-    pip install -e external/topsearch-mlp_run/ || return 1
-    python scripts/check_topsearch_branch.py mlp_run || return 1
+    echo 'Installing topsearch.'
+    pip install -e external/topsearch/ || return 1
 
     echo "Running salicylic acid small example with ANI2x. Allow a few minutes."
     python "${example}/run_landscape_runs.py" || return 1
@@ -53,10 +48,6 @@ mlp_landscapes_runme() {
         ) || return 1
         echo "${runs}/seed${seed}"
     done
-
-    echo 'Installing topsearch branch that was used for analysis.'
-    pip install -e external/topsearch-analysis/ || return 1
-    python scripts/check_topsearch_branch.py analysis || return 1
 
     python "${example}/combine_results.py" || return 1
 

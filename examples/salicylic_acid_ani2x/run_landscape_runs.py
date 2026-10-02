@@ -37,10 +37,14 @@ for seed in seeds:
     ff = MMFF94(fffile)
 
     # USING ANI2x FOR THIS EXAMPLE. Other supported models are :aimnet2, dftb, mace, allegro, nequip, mace-mp-0b3
-    # Please see the mlp_run branch of topsearch, src/potentials/ml_potentials.py for details on how to specify the potentials
+    # Please see external/topsearch/src/topsearch/potentials/ml_potentials.py for details on how to specify the potentials
     mlp = MachineLearningPotential(species, 'torchani', 'default', "cpu",ff=ff)
 
-    comparer = MolecularSimilarity(distance_criterion=1.0,
+    # Alignment distances are RMSD. This was 1.0 when the distance was a
+    # root-sum-squared deviation, which for the 16 atoms of salicylic acid
+    # is the same as 1.0/sqrt(16) = 0.25 here. Unlike the old value this one
+    # means the same thing for every molecule size.
+    comparer = MolecularSimilarity(distance_criterion=0.25,
                                 energy_criterion=5e-3,
                                 weighted=False)
     ktn = KineticTransitionNetwork()

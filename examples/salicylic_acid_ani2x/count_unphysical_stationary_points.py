@@ -1,3 +1,4 @@
+import os
 from ase.io import read
 import numpy as np
 from rdkit import Chem
@@ -5,6 +6,16 @@ from rdkit.Chem import rdDetermineBonds
 
 from topsearch.data.kinetic_transition_network import KineticTransitionNetwork
 from topsearch.data.coordinates import MolecularCoordinates
+
+# Which example this run operates on. Override to point the same analysis
+# scripts at a different model or molecule without copying them.
+EXAMPLE_DIR = os.environ.get('MLP_LANDSCAPES_EXAMPLE',
+                             'examples/salicylic_acid_ani2x')
+# Reference structures and the DFT network. Separate from EXAMPLE_DIR so a
+# new run can reuse the data of an existing one for the same molecule.
+DATA_DIR = os.environ.get('MLP_LANDSCAPES_DATA', f'{EXAMPLE_DIR}/data')
+RUNS_DIR = f'{EXAMPLE_DIR}/landscape_runs'
+
 
 
 def remove_different_bonding_frameworks(ktn, reference_atoms):
@@ -142,13 +153,13 @@ def canonicalize_atoms2(filename):
 if __name__=='__main__':
     all_results = []
 
-    ml_landscape_path = f"examples/salicylic_acid_ani2x/landscape_runs/"
+    ml_landscape_path = f"{RUNS_DIR}/"
 
     ml_ktn = KineticTransitionNetwork()
     ml_ktn.read_network(text_path=ml_landscape_path)
 
 
-    reference_atoms = canonicalize_atoms2(f'examples/salicylic_acid_ani2x/data/salicylic_acid_ground_state.xyz')
+    reference_atoms = canonicalize_atoms2(f'{DATA_DIR}/salicylic_acid_ground_state.xyz')
     initial_n_min = ml_ktn.n_minima
     initial_n_ts = ml_ktn.n_ts
 
@@ -167,7 +178,7 @@ if __name__=='__main__':
 
     import pickle 
     print("Saving results...")
-    with open(f"examples/salicylic_acid_ani2x/landscape_runs/count_unphysical_stationary_points.pkl", 'wb') as f:
+    with open(f"{RUNS_DIR}/count_unphysical_stationary_points.pkl", 'wb') as f:
         pickle.dump(all_results
         , f)
     print("Analysis complete!")

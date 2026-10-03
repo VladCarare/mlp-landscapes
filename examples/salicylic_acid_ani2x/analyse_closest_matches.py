@@ -732,18 +732,28 @@ from rdkit import Chem
 from rdkit.Chem import rdDetermineBonds
 import networkx as nx 
 
+# Which example this run operates on. Override to point the same analysis
+# scripts at a different model or molecule without copying them.
+EXAMPLE_DIR = os.environ.get('MLP_LANDSCAPES_EXAMPLE',
+                             'examples/salicylic_acid_ani2x')
+# Reference structures and the DFT network. Separate from EXAMPLE_DIR so a
+# new run can reuse the data of an existing one for the same molecule.
+DATA_DIR = os.environ.get('MLP_LANDSCAPES_DATA', f'{EXAMPLE_DIR}/data')
+RUNS_DIR = f'{EXAMPLE_DIR}/landscape_runs'
+
+
 if __name__=='__main__':
     extra_tag = 'closest-matches'
             
-    ml_landscape_path = f"examples/salicylic_acid_ani2x/landscape_runs/"
-    dft_landscape_path = f"examples/salicylic_acid_ani2x/data/dft_ktn/"
+    ml_landscape_path = f"{RUNS_DIR}/"
+    dft_landscape_path = f"{DATA_DIR}/dft_ktn/"
 
     print('-'*50)
     # Load and prepare DFT network
     print("Loading DFT network...")
     dft_ktn = KineticTransitionNetwork()
     dft_ktn.read_network(text_path=dft_landscape_path)
-    reference_atoms = canonicalize_atoms(f"examples/salicylic_acid_ani2x/data/dft_ktn/salicylic.xyz", dft_ktn)
+    reference_atoms = canonicalize_atoms(f"{DATA_DIR}/dft_ktn/salicylic.xyz", dft_ktn)
     print(f'DFT network: {dft_ktn.n_minima} minima, {dft_ktn.n_ts} transition states')
 
     # Define paths (these should be configuration options in a real application)
@@ -751,7 +761,7 @@ if __name__=='__main__':
     print("Loading ML network...")
     ml_ktn = KineticTransitionNetwork()
     ml_ktn.read_network(text_path=ml_landscape_path)
-    canonicalize_atoms(f'examples/salicylic_acid_ani2x/data/salicylic_acid_ground_state_canon_perm.xyz', ml_ktn)
+    canonicalize_atoms(f'{DATA_DIR}/salicylic_acid_ground_state_canon_perm.xyz', ml_ktn)
 
     # Clean ML network
     print("Cleaning ML network...")

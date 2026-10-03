@@ -1,3 +1,4 @@
+import os
 from topsearch.data.kinetic_transition_network import KineticTransitionNetwork
 from topsearch.data.coordinates import MolecularCoordinates
 from topsearch.similarity.molecular_similarity import MolecularSimilarity
@@ -105,6 +106,16 @@ def remove_different_bonding_frameworks(ktn, reference_atoms):
 
 from ase import Atoms
 from ase.io import write 
+
+# Which example this run operates on. Override to point the same analysis
+# scripts at a different model or molecule without copying them.
+EXAMPLE_DIR = os.environ.get('MLP_LANDSCAPES_EXAMPLE',
+                             'examples/salicylic_acid_ani2x')
+# Reference structures and the DFT network. Separate from EXAMPLE_DIR so a
+# new run can reuse the data of an existing one for the same molecule.
+DATA_DIR = os.environ.get('MLP_LANDSCAPES_DATA', f'{EXAMPLE_DIR}/data')
+RUNS_DIR = f'{EXAMPLE_DIR}/landscape_runs'
+
 
 def remove_structures_with_multiply_bonded_hydrogen(ktn,reference_atoms):
 
@@ -227,7 +238,7 @@ def create_mol_from_coordinates(elements, coordinates):
 
 
 
-base_folder = f'examples/salicylic_acid_ani2x/landscape_runs/'
+base_folder = f'{RUNS_DIR}/'
 seeds = [0,1,2]
 folders = [f'{base_folder}/seed{seed}' for seed in seeds]
 combined_ktn = KineticTransitionNetwork()
@@ -243,7 +254,7 @@ for idx, folder in enumerate(folders):
         current_ktn = KineticTransitionNetwork()
         current_ktn.read_network(text_path=f'{folder}/')
         if idx == 0:
-            atfile = f'examples/salicylic_acid_ani2x/data/salicylic_acid_ground_state.xyz'
+            atfile = f'{DATA_DIR}/salicylic_acid_ground_state.xyz'
             
             atoms = canonicalize_atoms(atfile, current_ktn)
             species = atoms.get_chemical_symbols()

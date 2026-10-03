@@ -15,13 +15,30 @@ from topsearch.transition_states.nudged_elastic_band import NudgedElasticBand
 from topsearch.potentials.ml_potentials import MachineLearningPotential
 from topsearch.potentials.force_fields import MMFF94
 
+# Which example this run operates on. Override to point the same analysis
+# scripts at a different model or molecule without copying them.
+EXAMPLE_DIR = os.environ.get('MLP_LANDSCAPES_EXAMPLE',
+                             'examples/salicylic_acid_ani2x')
+# Reference structures and the DFT network. Separate from EXAMPLE_DIR so a
+# new run can reuse the data of an existing one for the same molecule.
+DATA_DIR = os.environ.get('MLP_LANDSCAPES_DATA', f'{EXAMPLE_DIR}/data')
+RUNS_DIR = f'{EXAMPLE_DIR}/landscape_runs'
+
+
 repo_root = Path(__file__).parent
 
 
-seeds = [0,1,2]
-atfile = 'examples/salicylic_acid_ani2x/data/salicylic_acid_3_structures.xyz'
-fffile = 'examples/salicylic_acid_ani2x/data/salicylic_acid_for_force_field.xyz'
-parent_run_dir = 'examples/salicylic_acid_ani2x/landscape_runs/'
+# Which model to drive the search with, and how hard to search. The
+# defaults are the quick demo; the published runs used 20 seeds and 50
+# basin hopping steps. Seeds are independent, so they can be split across
+# processes by giving each one a different MLP_LANDSCAPES_SEEDS.
+MODEL = os.environ.get('MLP_LANDSCAPES_MODEL', 'torchani')
+seeds = [int(s) for s in
+         os.environ.get('MLP_LANDSCAPES_SEEDS', '0,1,2').split(',')]
+N_BH_STEPS = int(os.environ.get('MLP_LANDSCAPES_BH_STEPS', '5'))
+atfile = f'{DATA_DIR}/salicylic_acid_3_structures.xyz'
+fffile = f'{DATA_DIR}/salicylic_acid_for_force_field.xyz'
+parent_run_dir = f'{RUNS_DIR}/'
 
 molecule = 'salicylic'
 
@@ -36,9 +53,10 @@ for seed in seeds:
     
     ff = MMFF94(fffile)
 
-    # USING ANI2x FOR THIS EXAMPLE. Other supported models are :aimnet2, dftb, mace, allegro, nequip, mace-mp-0b3
+    # Defaults to ANI2x. Other supported models are: aimnet2, mace,
+    # mace-mp-0b3, nequip, so3lr
     # Please see external/topsearch/src/topsearch/potentials/ml_potentials.py for details on how to specify the potentials
-    mlp = MachineLearningPotential(species, 'torchani', 'default', "cpu",ff=ff)
+    mlp = MachineLearningPotential(species, MODEL, 'default', "cpu", ff=ff)
 
     # Alignment distances are RMSD, so this is 0.3 Angstrom per atom and
     # means the same thing whatever the molecule size. It used to be 1.0 as
@@ -76,7 +94,7 @@ for seed in seeds:
 
     # BEGIN CALCULATIONS
     explorer.get_minima(coords=coords,
-                        n_steps=5, # 50 USUALLY, BUT KEEPING IT LOW FOR EXAMPLE'S SAKE
+                        n_steps=N_BH_STEPS,
                         conv_crit=1e-3,
                         temperature=100.0,
                         test_valid=True)

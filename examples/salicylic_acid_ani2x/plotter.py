@@ -46,7 +46,7 @@ labelfontsize = 10
 import pickle 
 
 
-with open(f"examples/salicylic_acid_ani2x/landscape_runs/count_unphysical_stationary_points.pkl", 'rb') as f:
+with open(f"{RUNS_DIR}/count_unphysical_stationary_points.pkl", 'rb') as f:
     nonphysical_min_results = pickle.load(f)
 
 import pandas as pd 
@@ -200,7 +200,7 @@ plot_stacked_bars(ax2, 'ts', 'Transition States Analysis', 67, 'Count [$\longlef
 
 print(f"\nDFT Reference: 28 minima, 67 transition states")
 
-plt.savefig('examples/salicylic_acid_ani2x/landscape_runs/count_unphysical_stationary_points.pdf',bbox_inches='tight')
+plt.savefig(f'{RUNS_DIR}/count_unphysical_stationary_points.pdf',bbox_inches='tight')
 
 
 
@@ -237,7 +237,7 @@ def plot_fig4_perfect_match_comparison_1(fig,n_unphysical_critical_points_plot_g
                         new_type = 'altitude'
 
                     # print(molecule,model,model_type)
-                    file = f'examples/salicylic_acid_ani2x/landscape_runs/analysis_exact-matches.pkl'
+                    file = f'{RUNS_DIR}/analysis_exact-matches.pkl'
                     with open(file, 'rb') as f:
                         dft_ktn, ml_ktn, minima_correspondences, missing_ml_minima, statistics = pickle.load(f)
                         n_dft_min = dft_ktn.n_minima
@@ -468,7 +468,7 @@ def plot_fig4_closest_match_RMSD_comparison(fig,closest_match_RMSD_comparison_pl
                     else:
                         new_type = 'altitude'
                     
-                    file = f'examples/salicylic_acid_ani2x/landscape_runs/analysis_closest-matches.pkl'
+                    file = f'{RUNS_DIR}/analysis_closest-matches.pkl'
                     # if model == 'aimnet2':
                     #     file = f'/Users/vcarare/Downloads/LandscapeWork/landscape-17/landscape_results/{model}_{new_type}_gridsearch/{molecule}/analysis_{model}_{molecule}threshold1e8-14042025landscape-28052025aimnet2Functional-redoneTScomparison.pkl'
                     with open(file, 'rb') as f:
@@ -632,7 +632,7 @@ def plot_fig4_perfect_match_comparison_2(fig,n_unphysical_critical_points_plot_g
                         new_type = 'altitude'
 
                     # print(molecule,model,model_type)
-                    file = f'examples/salicylic_acid_ani2x/landscape_runs/analysis_exact-matches.pkl'
+                    file = f'{RUNS_DIR}/analysis_exact-matches.pkl'
                     with open(file, 'rb') as f:
                         dft_ktn, ml_ktn, minima_correspondences, missing_ml_minima, statistics = pickle.load(f)
                         n_dft_min = dft_ktn.n_minima
@@ -925,7 +925,7 @@ ax3.text(-0.09,1.15,'Structural Similarity of Closest Min. Matches',weight='bold
 ax4.text(-0.2,1.15,next(fig_indexing),weight='bold',transform=ax4.transAxes,fontsize=labelfontsize+6)
 ax4.text(-0.09,1.15,'Rel. Energy RMSE of Closest Min. Matches',weight='bold',transform=ax4.transAxes,fontsize=labelfontsize+1)
 
-plt.savefig('examples/salicylic_acid_ani2x/landscape_runs/stationary_points_analysis.pdf', bbox_inches='tight')
+plt.savefig(f'{RUNS_DIR}/stationary_points_analysis.pdf', bbox_inches='tight')
 
 
 
@@ -1192,7 +1192,7 @@ def plot_fig4_ktn_comparison(fig,ktn_comparison_plot_gridspec,ktn_comparison_plo
             ax.remove()
             continue
         print(calc_type,model)
-        with open(f"examples/salicylic_acid_ani2x/landscape_runs/analysis_exact-matches.pkl", 'rb') as f:
+        with open(f"{RUNS_DIR}/analysis_exact-matches.pkl", 'rb') as f:
             dft_ktn, ml_ktn, minima_correspondences, missing_ml_minima, _ = pickle.load(f)
         # reference_atoms = canonicalize_atoms(f"{dft_landscape_path}/{molecule}.xyz", dft_ktn)
         ax,_,pos,cmap_for_colorbar = plot_network_comparison(ax,dft_ktn,ml_ktn,minima_correspondences,scaling_factor=3,seed=2)
@@ -1289,6 +1289,16 @@ def plot_fig4_ktn_comparison(fig,ktn_comparison_plot_gridspec,ktn_comparison_plo
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 import networkx as nx
+
+# Which example this run operates on. Override to point the same analysis
+# scripts at a different model or molecule without copying them.
+EXAMPLE_DIR = os.environ.get('MLP_LANDSCAPES_EXAMPLE',
+                             'examples/salicylic_acid_ani2x')
+# Reference structures and the DFT network. Separate from EXAMPLE_DIR so a
+# new run can reuse the data of an existing one for the same molecule.
+DATA_DIR = os.environ.get('MLP_LANDSCAPES_DATA', f'{EXAMPLE_DIR}/data')
+RUNS_DIR = f'{EXAMPLE_DIR}/landscape_runs'
+
 # Create figure
 width = 2
 height = 8.5
@@ -1309,4 +1319,4 @@ ktn_comparison_plot_gridspec = GridSpec(1, 1, left=left, right=left+width, botto
 ax5 = plot_fig4_ktn_comparison(fig,ktn_comparison_plot_gridspec,ktn_comparison_plot_gridspec_left_legend,ktn_comparison_plot_gridspec_right_legend,labelfontsize)
 ax5=ax5[0]
 
-plt.savefig('examples/salicylic_acid_ani2x/landscape_runs/ktn_comparison.pdf', bbox_inches='tight')
+plt.savefig(f'{RUNS_DIR}/ktn_comparison.pdf', bbox_inches='tight')

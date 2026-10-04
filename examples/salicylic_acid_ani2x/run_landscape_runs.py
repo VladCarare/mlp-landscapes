@@ -14,6 +14,7 @@ from topsearch.transition_states.hybrid_eigenvector_following import HybridEigen
 from topsearch.transition_states.nudged_elastic_band import NudgedElasticBand
 from topsearch.potentials.ml_potentials import MachineLearningPotential
 from topsearch.potentials.force_fields import MMFF94
+from topsearch.utils.random import set_global_seed
 
 # Which example this run operates on. Override to point the same analysis
 # scripts at a different model or molecule without copying them.
@@ -41,6 +42,10 @@ N_BH_STEPS = int(os.environ.get('MLP_LANDSCAPES_BH_STEPS', '5'))
 # its whole budget, which is the dominant cost of a run. Set to 1 to spend
 # one attempt per pair.
 MAX_ATTEMPTS = int(os.environ.get('MLP_LANDSCAPES_MAX_ATTEMPTS', '3'))
+# Seeds the generators the search draws from. Without this two runs of
+# the same settings give different landscapes, so vary it deliberately to
+# get repeats rather than relying on the run being different each time.
+RNG_SEED = int(os.environ.get('MLP_LANDSCAPES_RNG_SEED', '0'))
 atfile = f'{DATA_DIR}/salicylic_acid_3_structures.xyz'
 fffile = f'{DATA_DIR}/salicylic_acid_for_force_field.xyz'
 parent_run_dir = f'{RUNS_DIR}/'
@@ -48,6 +53,10 @@ parent_run_dir = f'{RUNS_DIR}/'
 molecule = 'salicylic'
 
 for seed in seeds:
+
+    # Reseed per starting structure, so a structure gives the same result
+    # whether it is run alone or alongside others.
+    set_global_seed(RNG_SEED + seed)
 
     # INITIALISATION
     atoms = ase.io.read(atfile,seed)

@@ -36,6 +36,11 @@ MODEL = os.environ.get('MLP_LANDSCAPES_MODEL', 'torchani')
 seeds = [int(s) for s in
          os.environ.get('MLP_LANDSCAPES_SEEDS', '0,1,2').split(',')]
 N_BH_STEPS = int(os.environ.get('MLP_LANDSCAPES_BH_STEPS', '5'))
+# How many times a pair of minima may be attempted. Since a pair that
+# already has a transition state is no longer skipped, every pair now uses
+# its whole budget, which is the dominant cost of a run. Set to 1 to spend
+# one attempt per pair.
+MAX_ATTEMPTS = int(os.environ.get('MLP_LANDSCAPES_MAX_ATTEMPTS', '3'))
 atfile = f'{DATA_DIR}/salicylic_acid_3_structures.xyz'
 fffile = f'{DATA_DIR}/salicylic_acid_for_force_field.xyz'
 parent_run_dir = f'{RUNS_DIR}/'
@@ -89,7 +94,8 @@ for seed in seeds:
                             global_optimiser=optimiser,
                             single_ended_search=hef,
                             double_ended_search=neb,
-                            similarity=comparer)
+                            similarity=comparer,
+                            max_connection_attempts_per_pair=MAX_ATTEMPTS)
     
 
     # BEGIN CALCULATIONS

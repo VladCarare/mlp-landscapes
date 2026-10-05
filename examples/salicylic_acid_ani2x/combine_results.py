@@ -239,7 +239,10 @@ def create_mol_from_coordinates(elements, coordinates):
 
 
 base_folder = f'{RUNS_DIR}/'
-seeds = [0,1,2]
+# Which runs to merge. Same meaning as in run_landscape_runs.py, so a
+# subset can be combined without moving directories around.
+seeds = [int(x) for x in os.environ.get('MLP_LANDSCAPES_SEEDS',
+                                        '0,1,2').split(',')]
 folders = [f'{base_folder}/seed{seed}' for seed in seeds]
 combined_ktn = KineticTransitionNetwork()
 n_ts = []

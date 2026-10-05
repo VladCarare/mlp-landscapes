@@ -14,18 +14,57 @@ from topsearch.transition_states.hybrid_eigenvector_following import HybridEigen
 from topsearch.transition_states.nudged_elastic_band import NudgedElasticBand
 from topsearch.potentials.ml_potentials import MachineLearningPotential
 from topsearch.potentials.force_fields import MMFF94
+from topsearch.utils.random import set_global_seed
+
+# Which example this run operates on. Override to point the same analysis
+# scripts at a different model or molecule without copying them.
+EXAMPLE_DIR = os.environ.get('MLP_LANDSCAPES_EXAMPLE',
+                             'examples/salicylic_acid_ani2x')
+# Reference structures and the DFT network. Separate from EXAMPLE_DIR so a
+# new run can reuse the data of an existing one for the same molecule.
+DATA_DIR = os.environ.get('MLP_LANDSCAPES_DATA', f'{EXAMPLE_DIR}/data')
+RUNS_DIR = f'{EXAMPLE_DIR}/landscape_runs'
+
 
 repo_root = Path(__file__).parent
 
 
-seeds = [0,1,2]
-atfile = 'examples/salicylic_acid_ani2x/data/salicylic_acid_3_structures.xyz'
-fffile = 'examples/salicylic_acid_ani2x/data/salicylic_acid_for_force_field.xyz'
-parent_run_dir = 'examples/salicylic_acid_ani2x/landscape_runs/'
+# Which model to drive the search with, and how hard to search. The
+# defaults are the quick demo; the published runs used 20 seeds and 50
+# basin hopping steps. Seeds are independent, so they can be split across
+# processes by giving each one a different MLP_LANDSCAPES_SEEDS.
+MODEL = os.environ.get('MLP_LANDSCAPES_MODEL', 'torchani')
+seeds = [int(s) for s in
+         os.environ.get('MLP_LANDSCAPES_SEEDS', '0,1,2').split(',')]
+N_BH_STEPS = int(os.environ.get('MLP_LANDSCAPES_BH_STEPS', '5'))
+# How many times a pair of minima may be attempted. Since a pair that
+# already has a transition state is no longer skipped, every pair now uses
+# its whole budget, which is the dominant cost of a run. Set to 1 to spend
+# one attempt per pair.
+MAX_ATTEMPTS = int(os.environ.get('MLP_LANDSCAPES_MAX_ATTEMPTS', '3'))
+# How many rounds of pair selection the transition state search runs. Each
+# retry of a pair rebuilds the NEB band at higher image density, so more
+# cycles can reach saddles on genuinely different paths.
+N_CYCLES = int(os.environ.get('MLP_LANDSCAPES_CYCLES', '2'))
+# Seeds the generators the search draws from. Without this two runs of
+# the same settings give different landscapes, so vary it deliberately to
+# get repeats rather than relying on the run being different each time.
+RNG_SEED = int(os.environ.get('MLP_LANDSCAPES_RNG_SEED', '0'))
+# Starting structures, one frame per run, and the structure the empirical
+# force field is built from. Overridable so the same script can search a
+# different molecule.
+atfile = os.environ.get('MLP_LANDSCAPES_STRUCTURES',
+                        f'{DATA_DIR}/salicylic_acid_3_structures.xyz')
+fffile = os.environ.get('MLP_LANDSCAPES_FF_STRUCTURE',
+                        f'{DATA_DIR}/salicylic_acid_for_force_field.xyz')
+parent_run_dir = f'{RUNS_DIR}/'
 
-molecule = 'salicylic'
 
 for seed in seeds:
+
+    # Reseed per starting structure, so a structure gives the same result
+    # whether it is run alone or alongside others.
+    set_global_seed(RNG_SEED + seed)
 
     # INITIALISATION
     atoms = ase.io.read(atfile,seed)
@@ -36,11 +75,17 @@ for seed in seeds:
     
     ff = MMFF94(fffile)
 
-    # USING ANI2x FOR THIS EXAMPLE. Other supported models are :aimnet2, dftb, mace, allegro, nequip, mace-mp-0b3
-    # Please see the mlp_run branch of topsearch, src/potentials/ml_potentials.py for details on how to specify the potentials
-    mlp = MachineLearningPotential(species, 'torchani', 'default', "cpu",ff=ff)
+    # Defaults to ANI2x. Other supported models are: aimnet2, mace,
+    # mace-mp-0b3, nequip, so3lr
+    # Please see external/topsearch/src/topsearch/potentials/ml_potentials.py for details on how to specify the potentials
+    mlp = MachineLearningPotential(species, MODEL, 'default', "cpu", ff=ff)
 
-    comparer = MolecularSimilarity(distance_criterion=1.0,
+    # Alignment distances are RMSD, so this is 0.3 Angstrom per atom and
+    # means the same thing whatever the molecule size. It used to be 1.0 as
+    # a root-sum-squared deviation, which for the 16 atoms of salicylic acid
+    # worked out at 0.25 here, and which is why small molecules previously
+    # needed the criterion lowered by hand. Matches combine_results.py.
+    comparer = MolecularSimilarity(distance_criterion=0.3,
                                 energy_criterion=5e-3,
                                 weighted=False)
     ktn = KineticTransitionNetwork()
@@ -66,17 +111,18 @@ for seed in seeds:
                             global_optimiser=optimiser,
                             single_ended_search=hef,
                             double_ended_search=neb,
-                            similarity=comparer)
+                            similarity=comparer,
+                            max_connection_attempts_per_pair=MAX_ATTEMPTS)
     
 
     # BEGIN CALCULATIONS
     explorer.get_minima(coords=coords,
-                        n_steps=5, # 50 USUALLY, BUT KEEPING IT LOW FOR EXAMPLE'S SAKE
+                        n_steps=N_BH_STEPS,
                         conv_crit=1e-3,
                         temperature=100.0,
                         test_valid=True)
     explorer.get_transition_states(method='ClosestEnumeration',
-                                cycles=2,
+                                cycles=N_CYCLES,
                                 remove_bounds_minima=False)
     
 

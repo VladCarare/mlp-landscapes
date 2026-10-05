@@ -33,7 +33,7 @@ This repository provides tools to analyze machine learning potentials through en
 
 ## Installation
 
-This package uses submodules. Clone the repository with:
+This package uses a submodule. Clone the repository with:
 
 ```bash
 git clone --recursive https://github.com/VladCarare/mlp-landscapes.git
@@ -74,22 +74,13 @@ The MLP landscapes which were generated and analyzed in the corresponding public
 
 To reproduce these results, modify the parameters inside `examples/salicylic_acid_ani2x/run_landscape_runs.py` and run for every model and every molecule.
 
-To add models which are not present in the list above, one needs to add support for them in `external/topsearch-mlp_run/src/topsearch/potentials/ml_potentials.py`. This works best if the models already have an ASE interface.
+To add models which are not present in the list above, one needs to add support for them in `external/topsearch/src/topsearch/potentials/ml_potentials.py`. This works best if the models already have an ASE interface.
 
 ## Notes
 
 - **Package Manager:** The example uses conda by default. To use a different package manager, modify the `RUNME.sh` script accordingly.
 
 - **MFPT Plots:** Mean first passage time plots may appear empty for small KTNs. To generate meaningful MFPT data, increase the number of basin hopping steps in the configuration file.
-
-- **topsearch branches:** the two submodules in `external/` are different branches of the same package, and both install as the distribution `topsearch`, so only one is importable at a time. `RUNME.sh` installs `topsearch-mlp_run` to generate the landscapes and swaps to `topsearch-analysis` before the analysis stages. If you run a stage on its own rather than through `RUNME.sh`, check which branch is active first:
-
-  ```bash
-  python scripts/check_topsearch_branch.py mlp_run    # for run_landscape_runs.py
-  python scripts/check_topsearch_branch.py analysis   # for combine_results.py onwards
-  ```
-
-  Running a stage against the wrong branch fails a long way from the cause, for example `ValueError: not enough values to unpack (expected 3, got 2)` from `combine_results.py`.
 
 - **Empty results:** with the small demo settings (3 seeds, 5 basin hopping steps) a seed can easily find a single minimum and no transition states at all. That is expected; increase the number of steps for a fuller landscape.
 

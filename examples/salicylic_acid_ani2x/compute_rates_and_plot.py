@@ -11,6 +11,15 @@ import PyGT
 from ase.io import read 
 import os, os.path 
 
+# Which example this run operates on. Override to point the same analysis
+# scripts at a different model or molecule without copying them.
+EXAMPLE_DIR = os.environ.get('MLP_LANDSCAPES_EXAMPLE',
+                             'examples/salicylic_acid_ani2x')
+# Reference structures and the DFT network. Separate from EXAMPLE_DIR so a
+# new run can reuse the data of an existing one for the same molecule.
+DATA_DIR = os.environ.get('MLP_LANDSCAPES_DATA', f'{EXAMPLE_DIR}/data')
+RUNS_DIR = f'{EXAMPLE_DIR}/landscape_runs'
+
 
 def get_rate_properties(ktn, atoms, folder: str) -> None:
     """ Compute the rate properties for each stationary points and write
@@ -40,15 +49,15 @@ models = ['ani2x']
 titles = ['ANI2x']
 calc_types = ['retrain']
 
-atoms = read('examples/salicylic_acid_ani2x/data/salicylic_acid_ground_state_canon_perm.xyz')
+atoms = read(f'{DATA_DIR}/salicylic_acid_ground_state_canon_perm.xyz')
 for calc_type in calc_types:
     for idx,model in enumerate(models):
         if calc_type=='altitude' and model in ['ani2x','aimnet2','dftb','mace-mp-0b3','so3lr']:
             continue
         
-        ml_landscape_path = f"examples/salicylic_acid_ani2x/landscape_runs"
+        ml_landscape_path = f"{RUNS_DIR}"
 
-        with open(f"examples/salicylic_acid_ani2x/landscape_runs/analysis_closest-matches.pkl", 'rb') as f:
+        with open(f"{RUNS_DIR}/analysis_closest-matches.pkl", 'rb') as f:
             dft_ktn, ml_ktn, minima_correspondences, missing_ml_minima, _ = pickle.load(f)
             
         print(minima_correspondences)
@@ -77,15 +86,15 @@ for calc_type in calc_types:
 
 
 
-atoms = read('examples/salicylic_acid_ani2x/data/salicylic_acid_ground_state_canon_perm.xyz')
+atoms = read(f'{DATA_DIR}/salicylic_acid_ground_state_canon_perm.xyz')
 for calc_type in calc_types:
     for idx,model in enumerate(models):
         if calc_type=='altitude' and model in ['ani2x','aimnet2','dftb','mace-mp-0b3','so3lr']:
             continue
 
-        ml_landscape_path = f"examples/salicylic_acid_ani2x/landscape_runs"
+        ml_landscape_path = f"{RUNS_DIR}"
 
-        with open(f"examples/salicylic_acid_ani2x/landscape_runs/analysis_closest-matches.pkl", 'rb') as f:
+        with open(f"{RUNS_DIR}/analysis_closest-matches.pkl", 'rb') as f:
             dft_ktn, ml_ktn, minima_correspondences, missing_ml_minima, _ = pickle.load(f)
         
         print(calc_type, model)
@@ -149,7 +158,7 @@ def plot_fig4_rate_comparison(fig,rate_plot_gridspec,labelfontsize):
 
     i, f = pathway_to_test
     dft_mfpt_dict = {}
-    for data_path, label in zip(['examples/salicylic_acid_ani2x/data/dft_ktn'],
+    for data_path, label in zip([f'{DATA_DIR}/dft_ktn'],
                             ['default']):
         data_path = data_path + f'/pygt{i}-{f}'
         dft_mfpt_dict[label] = []
@@ -178,10 +187,10 @@ def plot_fig4_rate_comparison(fig,rate_plot_gridspec,labelfontsize):
                         continue 
                     
                     
-                    atoms = read(f'examples/salicylic_acid_ani2x/data/salicylic_acid_ground_state_canon_perm.xyz')
+                    atoms = read(f'{DATA_DIR}/salicylic_acid_ground_state_canon_perm.xyz')
 
                     i, f = pathway_to_test
-                    base_folder = f'examples/salicylic_acid_ani2x/landscape_runs/pygt3-4'
+                    base_folder = f'{RUNS_DIR}/pygt3-4'
 
                     if not os.path.exists(base_folder):
                         continue
@@ -230,7 +239,7 @@ def plot_fig4_rate_comparison(fig,rate_plot_gridspec,labelfontsize):
 
     i, f = pathway_to_test
     dft_mfpt_dict = {}
-    for data_path, label in zip(['examples/salicylic_acid_ani2x/data/dft_ktn'],
+    for data_path, label in zip([f'{DATA_DIR}/dft_ktn'],
                             ['default']):
         data_path = data_path + f'/pygt{i}-{f}-only'
         dft_mfpt_dict[label] = []
@@ -257,10 +266,10 @@ def plot_fig4_rate_comparison(fig,rate_plot_gridspec,labelfontsize):
                     if calc_type == 'altitude' and model in ['aimnet2','ani2x','mace-mp-0b3','dftb','so3lr','nequip']:
                         continue 
                     
-                    atoms = read(f'examples/salicylic_acid_ani2x/data/salicylic_acid_ground_state_canon_perm.xyz')
+                    atoms = read(f'{DATA_DIR}/salicylic_acid_ground_state_canon_perm.xyz')
 
                     i, f = pathway_to_test
-                    base_folder = f'examples/salicylic_acid_ani2x/landscape_runs/pygt3-4-only'
+                    base_folder = f'{RUNS_DIR}/pygt3-4-only'
 
                     if not os.path.exists(base_folder):
                         continue
@@ -338,6 +347,7 @@ def plot_fig4_rate_comparison(fig,rate_plot_gridspec,labelfontsize):
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 import networkx as nx
+
 # Create figure
 width = 8
 height = 8.5
@@ -358,4 +368,4 @@ ax13.text(-0.2,1.089,next(fig_indexing),weight='bold',transform=ax13.transAxes,f
 ax13.text(-0.1,1.089,r'Mean First Passage Time Comparison For Pathway 3 $\rightarrow$ 5 $\rightarrow$ 4',weight='bold',transform=ax13.transAxes,fontsize=labelfontsize+1)
 
 
-plt.savefig('examples/salicylic_acid_ani2x/landscape_runs/meanfirstpassagetimes.pdf', bbox_inches='tight')
+plt.savefig(f'{RUNS_DIR}/meanfirstpassagetimes.pdf', bbox_inches='tight')

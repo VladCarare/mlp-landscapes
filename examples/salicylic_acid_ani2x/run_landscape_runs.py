@@ -42,15 +42,23 @@ N_BH_STEPS = int(os.environ.get('MLP_LANDSCAPES_BH_STEPS', '5'))
 # its whole budget, which is the dominant cost of a run. Set to 1 to spend
 # one attempt per pair.
 MAX_ATTEMPTS = int(os.environ.get('MLP_LANDSCAPES_MAX_ATTEMPTS', '3'))
+# How many rounds of pair selection the transition state search runs. Each
+# retry of a pair rebuilds the NEB band at higher image density, so more
+# cycles can reach saddles on genuinely different paths.
+N_CYCLES = int(os.environ.get('MLP_LANDSCAPES_CYCLES', '2'))
 # Seeds the generators the search draws from. Without this two runs of
 # the same settings give different landscapes, so vary it deliberately to
 # get repeats rather than relying on the run being different each time.
 RNG_SEED = int(os.environ.get('MLP_LANDSCAPES_RNG_SEED', '0'))
-atfile = f'{DATA_DIR}/salicylic_acid_3_structures.xyz'
-fffile = f'{DATA_DIR}/salicylic_acid_for_force_field.xyz'
+# Starting structures, one frame per run, and the structure the empirical
+# force field is built from. Overridable so the same script can search a
+# different molecule.
+atfile = os.environ.get('MLP_LANDSCAPES_STRUCTURES',
+                        f'{DATA_DIR}/salicylic_acid_3_structures.xyz')
+fffile = os.environ.get('MLP_LANDSCAPES_FF_STRUCTURE',
+                        f'{DATA_DIR}/salicylic_acid_for_force_field.xyz')
 parent_run_dir = f'{RUNS_DIR}/'
 
-molecule = 'salicylic'
 
 for seed in seeds:
 
@@ -114,7 +122,7 @@ for seed in seeds:
                         temperature=100.0,
                         test_valid=True)
     explorer.get_transition_states(method='ClosestEnumeration',
-                                cycles=2,
+                                cycles=N_CYCLES,
                                 remove_bounds_minima=False)
     
 

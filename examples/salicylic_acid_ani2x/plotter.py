@@ -4,6 +4,15 @@ import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 import pickle
 
+# Which example this run operates on. Override to point the same analysis
+# scripts at a different model or molecule without copying them.
+EXAMPLE_DIR = os.environ.get('MLP_LANDSCAPES_EXAMPLE',
+                             'examples/salicylic_acid_ani2x')
+# Reference structures and the DFT network. Separate from EXAMPLE_DIR so a
+# new run can reuse the data of an existing one for the same molecule.
+DATA_DIR = os.environ.get('MLP_LANDSCAPES_DATA', f'{EXAMPLE_DIR}/data')
+RUNS_DIR = f'{EXAMPLE_DIR}/landscape_runs'
+
 
 names = ['Non-Landscape','Landscape','Critical Points\n(Min.&TS)','TS','Min.','TS-L','Min.-L']
 colors = ["#f84444", "#2737b2", "#5d93d5","#41b8e3","#91bfd0","#f9b6b6","#ff8c8c"]
@@ -1289,15 +1298,6 @@ def plot_fig4_ktn_comparison(fig,ktn_comparison_plot_gridspec,ktn_comparison_plo
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 import networkx as nx
-
-# Which example this run operates on. Override to point the same analysis
-# scripts at a different model or molecule without copying them.
-EXAMPLE_DIR = os.environ.get('MLP_LANDSCAPES_EXAMPLE',
-                             'examples/salicylic_acid_ani2x')
-# Reference structures and the DFT network. Separate from EXAMPLE_DIR so a
-# new run can reuse the data of an existing one for the same molecule.
-DATA_DIR = os.environ.get('MLP_LANDSCAPES_DATA', f'{EXAMPLE_DIR}/data')
-RUNS_DIR = f'{EXAMPLE_DIR}/landscape_runs'
 
 # Create figure
 width = 2

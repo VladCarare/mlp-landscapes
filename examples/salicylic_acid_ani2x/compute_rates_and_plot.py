@@ -11,6 +11,15 @@ import PyGT
 from ase.io import read 
 import os, os.path 
 
+# Which example this run operates on. Override to point the same analysis
+# scripts at a different model or molecule without copying them.
+EXAMPLE_DIR = os.environ.get('MLP_LANDSCAPES_EXAMPLE',
+                             'examples/salicylic_acid_ani2x')
+# Reference structures and the DFT network. Separate from EXAMPLE_DIR so a
+# new run can reuse the data of an existing one for the same molecule.
+DATA_DIR = os.environ.get('MLP_LANDSCAPES_DATA', f'{EXAMPLE_DIR}/data')
+RUNS_DIR = f'{EXAMPLE_DIR}/landscape_runs'
+
 
 def get_rate_properties(ktn, atoms, folder: str) -> None:
     """ Compute the rate properties for each stationary points and write
@@ -338,15 +347,6 @@ def plot_fig4_rate_comparison(fig,rate_plot_gridspec,labelfontsize):
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 import networkx as nx
-
-# Which example this run operates on. Override to point the same analysis
-# scripts at a different model or molecule without copying them.
-EXAMPLE_DIR = os.environ.get('MLP_LANDSCAPES_EXAMPLE',
-                             'examples/salicylic_acid_ani2x')
-# Reference structures and the DFT network. Separate from EXAMPLE_DIR so a
-# new run can reuse the data of an existing one for the same molecule.
-DATA_DIR = os.environ.get('MLP_LANDSCAPES_DATA', f'{EXAMPLE_DIR}/data')
-RUNS_DIR = f'{EXAMPLE_DIR}/landscape_runs'
 
 # Create figure
 width = 8
